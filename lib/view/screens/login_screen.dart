@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled/constants.dart';
+import 'package:untitled/local/shared_preference.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,8 +12,16 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   GlobalKey<FormState> key = GlobalKey<FormState>();
+  late SharedPref sharedPref;
   String? email;
   String? password;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    sharedPref = SharedPref();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -87,19 +98,33 @@ class _LoginScreenState extends State<LoginScreen> {
                 keyboardType: TextInputType.emailAddress,
                 obscureText: true,
                 decoration: InputDecoration(
-                  hintText: "Password",
-                  
+                  //hintText: "Password",
+                  labelText: "Password",
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
-                      color: Colors.green,
+                      color: Colors.black,
                       width: 2,
                     )
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
-                      color: Colors.green,
+                      color: Colors.black,
+                      width: 2,
+                    )
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                      color: Colors.red,
+                      width: 2,
+                    )
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(
+                      color: Colors.red,
                       width: 2,
                     )
                   ),
@@ -109,12 +134,17 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               SizedBox(height: 20,),
               ElevatedButton(
-                onPressed: (){
+                onPressed: () async{
                   bool valid = key.currentState!.validate();
                   if(valid == true){
                     key.currentState!.save();
                     print("Email $email");
                     print("Password $password");
+                    SharedPref.saveEmail(email!);
+                    SharedPref.savePass(password!);
+                    Navigator.pushNamed(context, addContactScreenPath);
+                    
+                    
                   }
               }, child: Text("Login")),
             ],

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:untitled/constants.dart';
 import 'package:untitled/models/contact.dart';
-import 'package:untitled/models/my_database.dart';
+import 'package:untitled/local/my_database.dart';
 
 class AddContactScreen extends StatefulWidget {
   const AddContactScreen({super.key});
@@ -14,7 +15,9 @@ class _AddContactScreenState extends State<AddContactScreen> {
   Contact contact = Contact();
   late MyDataBase db;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
-  var snackBar = SnackBar(
+  late Box box;
+
+  var snackBar = const SnackBar(
     backgroundColor: Colors.green,
     content: Text('Contact added'),
   );
@@ -25,17 +28,12 @@ class _AddContactScreenState extends State<AddContactScreen> {
     super.initState();
     db = MyDataBase();
     db.initializeDB();
+    box = Hive.box(contactTable);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(actions: [
-        IconButton(onPressed: (){
-          Navigator.pushNamed(context, contactScreenPath);
-        }, icon: Icon(Icons.contact_page))
-      ]),
-      body: Form(
+    return Form(
         key: formKey,
         child: Padding(
           padding: const EdgeInsets.all(15.0),
@@ -82,7 +80,7 @@ class _AddContactScreenState extends State<AddContactScreen> {
                   bool valid = formKey.currentState!.validate();
                   if(valid == true){
                     formKey.currentState!.save();
-                    await db.insertContactInDB(contact);
+                    box.add(contact.toMap());
                     formKey.currentState!.reset();
                     ScaffoldMessenger.of(context).showSnackBar(snackBar);
                   }
@@ -92,7 +90,6 @@ class _AddContactScreenState extends State<AddContactScreen> {
             ],
           ),
         ),
-      ),
-    );
+      );
   }
 }
